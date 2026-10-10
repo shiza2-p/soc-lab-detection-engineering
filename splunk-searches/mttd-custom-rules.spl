@@ -1,0 +1,13 @@
+# MTTD (Mean Time to Detect) — Custom Suricata Rules
+# Calculates detection latency (flow start -> alert generated) for
+# the three custom rules built in this lab: SQLi (1000001),
+# SSH Brute Force (1000002), Port Scan (1000003).
+# SID 2221036 (a built-in Emerging Threats rule) is deliberately
+# excluded — see Day 11 docs for why.
+
+(sourcetype=suricata OR sourcetype="json-2") event_type=alert
+(alert.signature_id=1000001 OR alert.signature_id=1000002 OR alert.signature_id=1000003)
+| eval flow_start_epoch=strptime('flow.start', "%Y-%m-%dT%H:%M:%S.%6N%z")
+| eval detect_latency_sec = _time - flow_start_epoch
+| stats avg(detect_latency_sec) as mttd_sec, min(detect_latency_sec) as fastest_sec, max(detect_latency_sec) as slowest_sec, count as total_alerts by alert.signature, alert.signature_id
+| eval mttd_sec=round(mttd_sec,3), fastest_sec=round(fastest_sec,3), slowest_sec=round(slowest_sec,3)

@@ -1,0 +1,18 @@
+# Correlation: FortiGate firewall events + Suricata IDS alerts by attacker
+# Joins both sources on source and destination address and shows, per
+# attacker/victim pair, how many firewall events and IDS alerts were
+# seen, which signatures fired, and which firewall policy and actions
+# applied. Joins on address, not on time, so it does not prove ordering.
+# Run over the time range you want (All time gives cumulative counts).
+# See Day 12 docs.
+
+(sourcetype=fgt_log OR sourcetype=suricata OR sourcetype="json-2")
+| eval src=coalesce(srcip, src_ip), dst=coalesce(dstip, dest_ip)
+| where src="10.10.10.10"
+| stats count(eval(sourcetype="fgt_log")) as firewall_events,
+        count(eval(event_type="alert")) as ids_alerts,
+        values(alert.signature) as ids_signature,
+        values(policyname) as fw_policy,
+        values(action) as fw_action
+        by src, dst
+| where firewall_events>0 OR ids_alerts>0

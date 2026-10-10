@@ -1,0 +1,11 @@
+# Custom SQL injection rules (UNION SELECT)
+# rev 2: moved from raw payload matching to HTTP sticky buffers, so matching
+# runs on the normalized URI (decoded) and, in a separate rule, the request
+# body. "distance:0" lets any characters sit between the two keywords, so
+# "UNION ALL SELECT" and "UNION/**/SELECT" are covered.
+# Known limits: keyword-based, so heavier obfuscation and non-HTTP
+# transports can still evade it. STATUS: rev 2 re-tested 2026-10-10 on Suricata 8.0.3: caught a URL-encoded
+# payload (%55NION ALL %53ELECT) in the URI and a UNION SELECT in a POST body.
+
+alert http any any -> $HOME_NET any (msg:"CUSTOM SQLi - UNION SELECT in URI"; flow:established,to_server; http.uri; content:"union"; nocase; content:"select"; nocase; distance:0; classtype:web-application-attack; sid:1000001; rev:2;)
+alert http any any -> $HOME_NET any (msg:"CUSTOM SQLi - UNION SELECT in request body"; flow:established,to_server; http.request_body; content:"union"; nocase; content:"select"; nocase; distance:0; classtype:web-application-attack; sid:1000004; rev:1;)

@@ -1,0 +1,14 @@
+# Hunt #2 — Reconnaissance to Accepted Connection Correlation
+# Step 1: find the time window of port-scan alerts (SID 1000003).
+# Step 2: check FortiGate's accept log for any TCP sessions accepted
+# during that same window, to see if scanning led to a follow-on
+# accepted connection. See Day 8 docs.
+
+# --- Step 1 ---
+(sourcetype=suricata OR sourcetype="json-2") event_type=alert alert.signature_id=1000003
+| stats earliest(_time) as scan_start latest(_time) as scan_end
+
+# --- Step 2 (plug in scan_start/scan_end from Step 1) ---
+sourcetype=fgt_log dstip=10.10.20.10 action=accept
+| where _time >= <scan_start> AND _time <= <scan_end>
+| stats count by service, proto

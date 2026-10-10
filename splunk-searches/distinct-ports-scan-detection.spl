@@ -1,0 +1,12 @@
+# Distinct-port scan detection (complements SID 1000003)
+# The Suricata scan rule counts SYN packets, not different ports. This
+# search counts distinct destination ports per source within 10-second
+# buckets from Suricata flow records, which is what a port scan looks like.
+# Adjust the threshold after testing against normal traffic.
+# STATUS: pending validation.
+
+(sourcetype=suricata OR sourcetype="json-2") event_type=flow proto=TCP
+| bin _time span=10s
+| stats dc(dest_port) as distinct_ports by _time, src_ip, dest_ip
+| where distinct_ports>=15
+| sort - distinct_ports

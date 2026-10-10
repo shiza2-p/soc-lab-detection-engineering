@@ -1,0 +1,8 @@
+# Hunt #1 — SSH Brute Force Behavioral Pattern
+# Groups SSH-related alert events by source IP within a 2-minute
+# window to detect brute-force-shaped bursts, independent of any
+# specific signature ID firing. See Day 8 docs.
+
+sourcetype=json-2 event_type=alert dest_ip=10.10.20.10 dest_port=22
+| transaction src_ip maxspan=2m
+| where eventcount > 4

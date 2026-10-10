@@ -1,0 +1,13 @@
+# Custom SSH connection-burst and SYN-rate scan rules
+# rev 2: threshold type "both" alerts once per interval after the count is
+# reached (rev 1 alerted on every packet, producing 1,000+ alerts from a
+# single Hydra run). Messages renamed to say what is actually measured.
+# Known limits: both rules count TCP SYN packets per source, not
+# authentication attempts or distinct destination ports (Suricata cannot
+# count distinct ports in a rule; see splunk-searches for that check), and
+# neither has had more than a light benign-traffic check.
+# STATUS: rev 2 re-tested 2026-10-10: one alert for a full nmap SYN scan
+# and one for a 10-connection burst to port 22 (rev 1 produced hundreds).
+
+alert tcp any any -> $HOME_NET 22 (msg:"CUSTOM SSH - Repeated Connection Attempts (possible brute force)"; flow:to_server; flags:S; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-recon; sid:1000002; rev:2;)
+alert tcp any any -> $HOME_NET any (msg:"CUSTOM Network - High-Rate TCP SYN Scan"; flags:S; threshold:type both, track by_src, count 15, seconds 10; classtype:network-scan; sid:1000003; rev:2;)

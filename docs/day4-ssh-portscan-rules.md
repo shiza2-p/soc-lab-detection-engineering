@@ -1,5 +1,7 @@
 # Day 4: SSH Brute Force and Port Scan Detection Rules
 
+> **Update:** this page documents the original (revision 1) SSH and port-scan rules. Revision 2 changed both to alert once per interval and renamed their messages (SID 1000002 and SID 1000003, rev 2). The current rules are in `suricata-rules/`, and the re-test is in [Day 12](day12-firewall-bypass-and-auto-block.md).
+
 ## Objective
 Extend Suricata's custom detection coverage beyond the initial SQLi rule
 with two more attack patterns: SSH brute force and network port

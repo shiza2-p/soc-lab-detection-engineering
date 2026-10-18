@@ -1,5 +1,7 @@
 # Day 3: Suricata Sensor Deployment and First Live Detection
 
+> **Update:** this page documents the original (revision 1) SQL injection rule. It was later replaced by revision 2, which matches the decoded HTTP URI (SID 1000001, rev 2) and adds a request-body rule (SID 1000004). The current rules are in `suricata-rules/`, and the re-test is in [Day 12](day12-firewall-bypass-and-auto-block.md).
+
 ## Objective
 Deploy Suricata as a passive sensor (promiscuous mode) on the Victim segment (VMnet3),
 confirm it can see live traffic, write a custom detection rule, and
